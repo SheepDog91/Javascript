@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+}
+canvas {
+    background-color: #000;
+}
+</style>
+</head>
+<body onload="initApp(), resizeApp()" onresize="resizeApp()">
+
+<script>
+var player;
+var spriteWidth = 32;
+var spriteHeight = 32;
+    player = new Image();
+    player.src = "images/sprites/1.png";
+    npc = new Image();
+    npc.src = "images/sprites/2.png";    
+    tileset = new Image();
+    tileset.src = "images/tilesets/1.bmp";
+    itemset = new Image();
+    itemset.src = "images/items/1.bmp";
+
+function initApp() {
+    player = new entity(
+        (window.innerWidth/2)-spriteWidth, (window.innerHeight/2)-spriteHeight,
+        spriteWidth, spriteHeight, player);
+    npc = new entity(player.x-36, player.y-38, spriteWidth, spriteHeight, npc);
+    
+    appCanvas.start();
+
+}
+
+function resizeApp(){
+    appCanvas.canvas.width = window.innerWidth;
+    appCanvas.canvas.height = window.innerHeight;
+}
+
+var appCanvas = {
+    canvas : document.createElement("canvas"),
+    start : function() {
+        this.context = this.canvas.getContext("2d");
+        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        this.frameNo = 0;
+        this.interval = setInterval(updateApp, 20);
+        window.addEventListener('keydown', function (e) {
+            e.preventDefault();
+            appCanvas.keys = (appCanvas.keys || []);
+            appCanvas.keys[e.keyCode] = (e.type == "keydown");
+        })
+        window.addEventListener('keyup', function (e) {
+            appCanvas.keys[e.keyCode] = (e.type == "keydown");
+        })
+    },
+    stop : function() {
+        clearInterval(this.interval);
+    },    
+    clear : function() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+}
+    
+function entity(x, y, width, height,type) {
+    this.type = type;
+    this.sx = 96;
+    this.sy = 0;
+    this.swidth = spriteWidth;
+    this.sheight = spriteHeight;
+    this.width = width;
+    this.height = height;
+    this.x = x;
+    this.y = y;    
+    this.update = function() {
+        ctx = appCanvas.context;
+        ctx.drawImage(
+        this.type,
+        this.sx,
+        this.sy,
+        this.swidth,
+        this.sheight,
+        this.x,
+        this.y,
+        this.width,
+        this.height); 
+    }
+}
+
+function updateApp() {
+    appCanvas.clear();
+    if (appCanvas.keys && appCanvas.keys[16]) {//shift
+        
+    }
+    if (appCanvas.keys && appCanvas.keys[37]) {//left
+        player.x = player.x - 1;
+        player.sx = 192;
+    }
+    if (appCanvas.keys && appCanvas.keys[39]) {//right
+        player.x = player.x + 1;
+        player.sx = 288;
+    }
+    if (appCanvas.keys && appCanvas.keys[38]) { //up
+        player.y = player.y - 1;
+        player.sx = 0;
+    }
+    if (appCanvas.keys && appCanvas.keys[40]) {//down
+        player.y = player.y + 1;
+        player.sx = 96;
+    }
+    npc.update();
+    player.update();
+
+}
+</script>
+</body>
+</html>
