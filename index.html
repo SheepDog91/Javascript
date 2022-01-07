@@ -18,28 +18,30 @@ canvas {
 var player;
 var spriteWidth = 32;
 var spriteHeight = 32;
-    player = new Image();
-    player.src = "images/sprites/1.png";
-    npc = new Image();
-    npc.src = "images/sprites/2.png";    
-    tileset = new Image();
-    tileset.src = "images/tilesets/1.bmp";
-    itemset = new Image();
-    itemset.src = "images/items/1.bmp";
+player = new Image();
+player.src = "images/sprites/1.png";
+npc = new Image();
+npc.src = "images/sprites/2.png";    
+tileset = new Image();
+tileset.src = "images/tilesets/1.bmp";
+itemset = new Image();
+itemset.src = "images/items/1.bmp";
 
 function initApp() {
+    
     player = new entity(
         (window.innerWidth/2)-spriteWidth, (window.innerHeight/2)-spriteHeight,
         spriteWidth, spriteHeight, player);
     npc = new entity(player.x-36, player.y-38, spriteWidth, spriteHeight, npc);
-    
+    chat = new chatbox(10,window.innerHeight - 210,450,200);
+    inventory = new gui(100,100,250,250);
     appCanvas.start();
-
 }
 
 function resizeApp(){
     appCanvas.canvas.width = window.innerWidth;
     appCanvas.canvas.height = window.innerHeight;
+    chat.y = window.innerHeight - 210;
 }
 
 var appCanvas = {
@@ -75,46 +77,118 @@ function entity(x, y, width, height,type) {
     this.width = width;
     this.height = height;
     this.x = x;
-    this.y = y;    
+    this.y = y;
+    
+    this.speed;    
     this.update = function() {
         ctx = appCanvas.context;
         ctx.drawImage(
-        this.type,
-        this.sx,
-        this.sy,
-        this.swidth,
-        this.sheight,
-        this.x,
-        this.y,
-        this.width,
-        this.height); 
+            this.type,
+            this.sx,
+            this.sy,
+            this.swidth,
+            this.sheight,
+            this.x,
+            this.y,
+            this.width,
+            this.height
+        ); 
+    }
+    this.attack = function() {
+        this.sx = this.sx + 32;
     }
 }
+var mapname ="Map Name"
+function drawtext(){
+    ctx.fillStyle = 'red';
+    ctx.font = 'bold 12px serif';
+    ctx.fillText(mapname,(window.innerWidth/2)- mapname.length ,25);
+}
+
+function chatbox(x,y,width,height){
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.update = function() {
+        ctx = appCanvas.context;
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(32,32,32,0.5)';
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.fill();
+    }
+
+}
+
+function gui(x,y,width,height){
+    this.visible = false;
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.update = function() {
+        ctx = appCanvas.context;
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(32,32,32,0.5)';
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.fill();
+    }
+}
+
+var teststring = "Welcome to SheepDog's OARPG engine, current version 0.0.0a"
+function message(){
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 12px serif';
+    ctx.fillText(teststring, chat.x+10, chat.y+25);
+}
+
 
 function updateApp() {
     appCanvas.clear();
     if (appCanvas.keys && appCanvas.keys[16]) {//shift
-        
+        player.speed = 2;
+    } else {
+        player.speed = 1;
     }
+    if (appCanvas.keys && appCanvas.keys[17])//ctrl
+    {
+        player.attack();
+    }
+    //else {this.sx}
     if (appCanvas.keys && appCanvas.keys[37]) {//left
-        player.x = player.x - 1;
+        player.x = player.x - 1 * player.speed;
         player.sx = 192;
     }
     if (appCanvas.keys && appCanvas.keys[39]) {//right
-        player.x = player.x + 1;
+        player.x = player.x + 1 * player.speed;
         player.sx = 288;
     }
     if (appCanvas.keys && appCanvas.keys[38]) { //up
-        player.y = player.y - 1;
+        player.y = player.y - 1 * player.speed;
         player.sx = 0;
     }
     if (appCanvas.keys && appCanvas.keys[40]) {//down
-        player.y = player.y + 1;
+        player.y = player.y + 1 * player.speed;
         player.sx = 96;
+    }
+    if (appCanvas.keys && appCanvas.keys[73]) {//i
+       if (inventory.visible == false){
+       inventory.visible = true; 
+       }
+       else
+       {
+       inventory.visible = false;
+       }
     }
     npc.update();
     player.update();
-
+    drawtext();
+    chat.update();
+    message();
+    if (inventory.visible)
+    {
+    inventory.update();
+    }
 }
 </script>
 </body>
